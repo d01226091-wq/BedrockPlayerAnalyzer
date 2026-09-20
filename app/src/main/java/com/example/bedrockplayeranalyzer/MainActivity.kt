@@ -82,6 +82,15 @@ class MainActivity : AppCompatActivity() {
         }
         root.addView(status, lp())
 
+        stats = TextView(this).apply {
+            text = "Игроков: 0   •   Средний балл: 0%"
+            textSize = 14f
+            setTextColor(Color.WHITE)
+            setPadding(dp(14), dp(12), dp(14), dp(12))
+            setBackgroundColor(Color.rgb(25, 27, 32))
+        }
+        root.addView(stats, lp(0, 10))
+
         root.addView(Button(this).apply {
             text = "▶ ЗАПУСТИТЬ LIVE-АНАЛИЗ"
             setOnClickListener { requestCapture() }
