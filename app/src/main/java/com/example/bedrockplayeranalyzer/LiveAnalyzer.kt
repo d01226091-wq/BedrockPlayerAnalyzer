@@ -111,8 +111,8 @@ class LiveAnalyzer(private val context: Context) {
                     }
                 }
                 .addOnCompleteListener(executor) {
-                    old.recycleSafely()
-                    current.recycleSafely()
+                    // Keep current as the previous frame for the next comparison.
+                    old?.recycleSafely()
                     busy = false
                 }
         }
