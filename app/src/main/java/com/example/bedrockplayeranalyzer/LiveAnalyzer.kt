@@ -54,6 +54,8 @@ class LiveAnalyzer(private val context: Context) {
     private var closed = false
     private var lastRun = 0L
     private val prefs = context.getSharedPreferences("players", Context.MODE_PRIVATE)
+    private val candidateHits = mutableMapOf<String, Int>()
+    private val candidateLastBox = mutableMapOf<String, Rect>()
 
     fun analyze(bitmap: Bitmap, scaleX: Float = 1f, scaleY: Float = 1f) {
         if (closed) {
@@ -137,6 +139,23 @@ class LiveAnalyzer(private val context: Context) {
                 continue
             }
 
+            val key = name.lowercase(Locale.ROOT)
+            val previousBox = candidateLastBox[key]
+            val stable = previousBox != null &&
+                abs(previousBox.centerX() - box.centerX()) < max(60, box.width() * 3) &&
+                abs(previousBox.centerY() - box.centerY()) < max(60, box.height() * 4)
+
+            candidateHits[key] = if (stable) {
+                (candidateHits[key] ?: 0) + 1
+            } else {
+                1
+            }
+            candidateLastBox[key] = Rect(box)
+
+            if ((candidateHits[key] ?: 0) < 2) {
+                continue
+            }
+
             val localMotion = motionAround(box, current, old)
             val score = behaviorScore(localMotion)
 
@@ -160,8 +179,9 @@ class LiveAnalyzer(private val context: Context) {
         height: Int
     ): Boolean {
         if (name.length !in 3..20) return false
-        if (box.width() < 10 || box.height() < 4) return false
-        if (box.centerY() < height * 0.08f || box.centerY() > height * 0.90f) {
+        if (box.width() < 18 || box.height() < 6) return false
+        if (box.width() > width * 0.45f || box.height() > height * 0.08f) return false
+        if (box.centerY() < height * 0.12f || box.centerY() > height * 0.78f) {
             return false
         }
         if (box.left < width * 0.01f || box.right > width * 0.99f) {
