@@ -1,0 +1,17 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Bedrock Analyzer UI Resources",
+    "description": "Resources for Bedrock Analyzer UI",
+    "uuid": "c4a7b2e1-5f4d-46f7-9c2a-1b8e6d3f0a22",
+    "version": [1, 0, 0],
+    "min_engine_version": [1, 21, 0]
+  },
+  "modules": [
+    {
+      "type": "resources",
+      "uuid": "d9f1a7c3-8e25-4b60-a1d2-6c7f9e0b4d33",
+      "version": [1, 0, 0]
+    }
+  ]
+}
