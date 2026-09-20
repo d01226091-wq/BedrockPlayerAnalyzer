@@ -46,11 +46,7 @@ class ScreenCaptureService : Service() {
 
         stopCapture()
         projection = manager.getMediaProjection(code, data)
-        projection?.registerCallback(object : MediaProjection.Callback() {
-            override fun onStop() {
-                stopCapture()
-            }
-        }, null)
+        projection?.registerCallback(projectionCallback, null)
 
         val metrics = DisplayMetrics()
         @Suppress("DEPRECATION")
