@@ -9,6 +9,8 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.view.ViewGroup
+import android.view.Gravity
+import android.graphics.Typeface
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import org.json.JSONArray
@@ -37,6 +39,7 @@ class MainActivity : AppCompatActivity() {
     private val records = linkedMapOf<String, PlayerRecord>()
     private lateinit var list: LinearLayout
     private lateinit var status: TextView
+    private lateinit var stats: TextView
     private val prefs by lazy { getSharedPreferences("players", Context.MODE_PRIVATE) }
     private val captureRequest = 7001
 
@@ -279,6 +282,26 @@ class MainActivity : AppCompatActivity() {
             list.addView(item, params)
         }
     }
+
+    private fun label(text: String, size: Float, color: Int, bold: Boolean = false): TextView =
+        TextView(this).apply {
+            this.text = text
+            textSize = size
+            setTextColor(color)
+            if (bold) setTypeface(Typeface.DEFAULT, Typeface.BOLD)
+        }
+
+    private fun lp(top: Int = 0, bottom: Int = 0): LinearLayout.LayoutParams {
+        val p = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        p.setMargins(0, dp(top), 0, dp(bottom))
+        return p
+    }
+
+    private fun dp(value: Int): Int =
+        (value * resources.displayMetrics.density).toInt()
 
     private fun saveRecords() {
         val arr = JSONArray()
