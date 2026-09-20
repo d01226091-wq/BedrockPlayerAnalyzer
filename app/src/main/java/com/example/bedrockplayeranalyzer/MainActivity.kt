@@ -231,44 +231,52 @@ class MainActivity : AppCompatActivity() {
     private fun render() {
         if (!::list.isInitialized) return
         list.removeAllViews()
+
+        val total = records.size
+        val avg = if (total == 0) 0 else records.values.sumOf { it.score } / total
+        stats.text = "Игроков: $total   •   Средний балл: $avg%"
+
+        if (records.isEmpty()) {
+            list.addView(TextView(this).apply {
+                text = "Пока игроков нет\n\nЗапусти LIVE-анализ или добавь наблюдение ниже."
+                textSize = 14f
+                setTextColor(Color.LTGRAY)
+                gravity = Gravity.CENTER
+                setPadding(dp(20), dp(28), dp(20), dp(28))
+                setBackgroundColor(Color.rgb(25, 27, 32))
+            }, lp())
+            return
+        }
+
         val fmt = SimpleDateFormat("dd.MM HH:mm", Locale.getDefault())
         records.values.sortedByDescending { it.lastSeen }.forEach { p ->
-            val icon: String
-            val label: String
-            val color: Int
-            when {
-                p.score >= 70 -> {
-                    icon = "🔴"
-                    label = "СОФТ?"
-                    color = Color.rgb(255, 90, 90)
-                }
-                p.score >= 35 -> {
-                    icon = "🟡"
-                    label = "ТРЕБУЕТ ПРОВЕРКИ"
-                    color = Color.rgb(255, 210, 70)
-                }
-                else -> {
-                    icon = "🟢"
-                    label = "БЕЗ ЯВНЫХ ПРИЗНАКОВ"
-                    color = Color.rgb(80, 220, 100)
-                }
+            val (state, color) = when {
+                p.score >= 70 -> "ВЫСОКИЙ БАЛЛ" to Color.rgb(240, 75, 75)
+                p.score >= 35 -> "ТРЕБУЕТ ПРОВЕРКИ" to Color.rgb(245, 195, 55)
+                else -> "НИЗКИЙ БАЛЛ" to Color.rgb(70, 215, 105)
             }
-            val row = TextView(this).apply {
-                text = icon + " " + p.name + "\n" +
-                    label + " • " + p.score + "% • наблюдений: " + p.observations + "\n" +
-                    p.signals.distinct().take(4).joinToString(", ") + "\n" +
-                    "Последний раз: " + fmt.format(Date(p.lastSeen))
-                textSize = 15f
-                setTextColor(color)
-                setPadding(14, 14, 14, 14)
-                setBackgroundColor(Color.rgb(30, 30, 30))
+
+            val item = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(dp(15), dp(13), dp(15), dp(13))
+                setBackgroundColor(Color.rgb(25, 27, 32))
             }
-            val params = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            params.setMargins(0, 8, 0, 0)
-            list.addView(row, params)
+            val header = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
+            header.addView(label("●", 20f, color), LinearLayout.LayoutParams(dp(28), ViewGroup.LayoutParams.WRAP_CONTENT))
+            header.addView(label(p.name, 17f, Color.WHITE, true), LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+            header.addView(label(p.score.toString() + "%", 18f, color, true))
+            item.addView(header, lp())
+            item.addView(label(state, 12f, color, true), lp(4, 0))
+            item.addView(label("Наблюдений: " + p.observations + "  •  " + fmt.format(Date(p.lastSeen)), 12f, Color.LTGRAY), lp(5, 0))
+
+            val signals = p.signals.distinct().take(3)
+            if (signals.isNotEmpty()) {
+                item.addView(label("Сигналы: " + signals.joinToString(" • "), 12f, Color.LTGRAY), lp(5, 0))
+            }
+
+            val params = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            params.setMargins(0, dp(7), 0, 0)
+            list.addView(item, params)
         }
     }
 
