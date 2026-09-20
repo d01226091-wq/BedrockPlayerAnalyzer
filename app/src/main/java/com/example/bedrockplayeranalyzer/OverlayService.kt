@@ -118,28 +118,15 @@ class OverlayService : Service() {
                     else -> Color.rgb(60, 210, 90)
                 }
 
-                // Цветной кружок непосредственно рядом с ником.
-                val nameX = m.x + 18f
-                val nameY = m.y + 8f
-
+                // Minecraft уже рисует ник. Оверлей добавляет только цветной маркер над ним.
                 badge.color = color
-                canvas.drawCircle(nameX, m.y, 9f, badge)
+                canvas.drawCircle(m.x, m.y, 10f, badge)
 
-                text.color = Color.WHITE
-                canvas.drawText(m.name, nameX + 16f, nameY, text)
-
-                small.color = color
-                val label = when {
-                    m.score >= 70 -> "СОФТ?"
-                    m.score >= 35 -> "ПОДОЗРИТЕЛЬНО"
-                    else -> "НИЗКИЙ РИСК"
-                }
-                canvas.drawText(
-                    label + " • " + m.score + "%",
-                    nameX + 16f,
-                    m.y + 32f,
-                    small
-                )
+                small.color = Color.WHITE
+                small.textSize = 18f
+                val scoreText = m.score.toString() + "%"
+                val textWidth = small.measureText(scoreText)
+                canvas.drawText(scoreText, m.x - textWidth / 2f, m.y - 15f, small)
             }
         }
     }
