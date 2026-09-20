@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity() {
         root.addView(status, lp(0, 10))
 
         root.addView(menuButton("▶  ИГРАТЬ В MINECRAFT", Color.rgb(55, 150, 95)) {
-            openMinecraft()
+            showPlayMenu()
         }, lp(0, 10))
 
         root.addView(menuButton("🌐  ПОДКЛЮЧИТЬСЯ К СЕРВЕРУ", Color.rgb(55, 105, 145)) {
@@ -167,6 +167,35 @@ class MainActivity : AppCompatActivity() {
             }
             setOnClickListener { action() }
         }
+
+    private fun showPlayMenu() {
+        val items = arrayOf(
+            "🌱  СОЗДАТЬ МОЙ МИР",
+            "👥  ПОДКЛЮЧИТЬСЯ К ДРУГУ",
+            "🌐  ПОДКЛЮЧИТЬСЯ К СЕРВЕРУ"
+        )
+        AlertDialog.Builder(this)
+            .setTitle("ИГРАТЬ")
+            .setItems(items) { _, which ->
+                when (which) {
+                    0 -> createMyWorld()
+                    1 -> connectToFriend()
+                    2 -> showServerDialog()
+                }
+            }
+            .setNegativeButton("ОТМЕНА", null)
+            .show()
+    }
+
+    private fun createMyWorld() {
+        openMinecraft()
+        Toast.makeText(this, "Открой «Играть» → «Создать» в Minecraft", Toast.LENGTH_LONG).show()
+    }
+
+    private fun connectToFriend() {
+        openMinecraft()
+        Toast.makeText(this, "Открой «Играть» и выбери друга в Minecraft", Toast.LENGTH_LONG).show()
+    }
 
     private fun openMinecraft() {
         val intent = packageManager.getLaunchIntentForPackage("com.mojang.minecraftpe")
