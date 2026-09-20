@@ -11,7 +11,6 @@ import android.provider.Settings
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import org.json.JSONArray
 import org.json.JSONObject
 import java.text.SimpleDateFormat
@@ -223,7 +222,7 @@ class MainActivity : AppCompatActivity() {
                 putExtra("resultCode", resultCode)
                 putExtra("data", data)
             }
-            ContextCompat.startForegroundService(this, intent)
+            startForegroundService(intent)
             status.text = "● LIVE-АНАЛИЗ ЗАПУЩЕН • экран доступен анализатору"
             status.setTextColor(Color.rgb(80, 220, 100))
         }
