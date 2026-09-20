@@ -11,6 +11,7 @@ import android.provider.Settings
 import android.view.ViewGroup
 import android.view.Gravity
 import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import org.json.JSONArray
@@ -55,7 +56,7 @@ class MainActivity : AppCompatActivity() {
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(24, 24, 24, 24)
-            setBackgroundColor(Color.rgb(18, 18, 18))
+            setBackgroundColor(Color.rgb(25, 25, 25))
         }
         scroll.addView(root)
 
@@ -63,12 +64,12 @@ class MainActivity : AppCompatActivity() {
             text = "BPA MOD CLIENT"
             textSize = 22f
             setTextColor(Color.WHITE)
-            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTypeface(Typeface.MONOSPACE, Typeface.BOLD)
         }
         root.addView(title, lp())
 
         val subtitle = TextView(this).apply {
-            text = "BEDROCK • MOD HUD • LIVE ANALYTICS"
+            text = "BEDROCK • ANALYZER • LIVE HUD"
             textSize = 13f
             setTextColor(Color.LTGRAY)
         }
@@ -91,13 +92,9 @@ class MainActivity : AppCompatActivity() {
         }
         root.addView(stats, lp(0, 10))
 
-        root.addView(Button(this).apply {
-            text = "▶ ВКЛЮЧИТЬ MOD HUD"
-            setOnClickListener { requestCapture() }
-        }, lp())
+        root.addView(blockButton("▶  ВКЛЮЧИТЬ LIVE HUD") { requestCapture() }, lp())
 
-        root.addView(Button(this).apply {
-            text = "▣ ПОКАЗАТЬ HUD ПОВЕРХ ИГРЫ"
+        root.addView(blockButton("▣  ПОКАЗАТЬ HUD ПОВЕРХ ИГРЫ")
             setOnClickListener {
                 if (!Settings.canDrawOverlays(this@MainActivity)) {
                     startActivity(
@@ -167,8 +164,7 @@ class MainActivity : AppCompatActivity() {
         val score = SeekBar(this).apply { max = 100; progress = 0 }
         root.addView(score, lp())
 
-        root.addView(Button(this).apply {
-            text = "ДОБАВИТЬ В MOD-ПРОФИЛЬ"
+        root.addView(blockButton("ДОБАВИТЬ В ПРОФИЛЬ")
             setOnClickListener {
                 val player = name.text.toString().trim()
                 if (player.isEmpty()) {
@@ -200,8 +196,7 @@ class MainActivity : AppCompatActivity() {
             }
         }, lp())
 
-        root.addView(Button(this).apply {
-            text = "ОЧИСТИТЬ MOD-ПРОФИЛИ"
+        root.addView(blockButton("ОЧИСТИТЬ ПРОФИЛИ")
             setOnClickListener {
                 records.clear()
                 saveRecords()
@@ -210,7 +205,7 @@ class MainActivity : AppCompatActivity() {
         }, lp())
 
         root.addView(TextView(this).apply {
-            text = "MOD HUD работает поверх Minecraft: показывает цветные маркеры и поведенческий балл по тому, что видно на экране. Это отдельный Android-оверлей, а не изменённый APK Minecraft."
+            text = "HUD в стиле Minecraft: квадратные панели, контрастные кнопки и цветные маркеры. Это отдельный Android-оверлей, а не изменённый APK Minecraft."
             textSize = 12f
             setTextColor(Color.LTGRAY)
             setPadding(0, 14, 0, 14)
@@ -220,6 +215,22 @@ class MainActivity : AppCompatActivity() {
         root.addView(list, lp())
         setContentView(scroll)
     }
+
+
+    private fun blockButton(title: String, action: () -> Unit): Button =
+        Button(this).apply {
+            text = title
+            textSize = 13f
+            setTextColor(Color.WHITE)
+            typeface = Typeface.MONOSPACE
+            setPadding(dp(12), dp(12), dp(12), dp(12))
+            background = GradientDrawable().apply {
+                setColor(Color.rgb(70, 70, 70))
+                setStroke(dp(2), Color.rgb(35, 35, 35))
+                cornerRadius = 2f
+            }
+            setOnClickListener { action() }
+        }
 
     private fun requestCapture() {
         val manager = getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
