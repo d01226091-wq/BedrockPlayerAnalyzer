@@ -251,8 +251,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun createMyWorld() {
+        // Bedrock does not expose a documented deep link for the Create New World
+        // screen. Open Minecraft directly so the user can create a real local world.
         openMinecraft()
-        Toast.makeText(this, "Открой «Играть» → «Создать» в Minecraft", Toast.LENGTH_LONG).show()
+        Toast.makeText(
+            this,
+            "В Minecraft открой «Играть» → «Создать» → «Создать новый мир»",
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     private fun connectToFriend() {
