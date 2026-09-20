@@ -22,6 +22,8 @@ import android.util.DisplayMetrics
 import androidx.core.app.NotificationCompat
 
 class ScreenCaptureService : Service() {
+    // Анализ выполняется только когда на захваченном экране виден интерфейс Minecraft Bedrock.
+    // Если экран не похож на игровой HUD, кадр игнорируется.
     private var projection: MediaProjection? = null
     private var display: VirtualDisplay? = null
     private var reader: ImageReader? = null
@@ -121,6 +123,10 @@ class ScreenCaptureService : Service() {
 
                 try {
                     val bitmap = imageToBitmap(image)
+                    if (!looksLikeMinecraft(bitmap)) {
+                        bitmap.recycle()
+                        return@setOnImageAvailableListener
+                    }
                     analyzer?.analyze(
                         bitmap,
                         screenWidth.toFloat() / captureWidth.toFloat(),
@@ -163,6 +169,33 @@ class ScreenCaptureService : Service() {
             stopSelf()
             return START_NOT_STICKY
         }
+    }
+
+    private fun looksLikeMinecraft(bitmap: Bitmap): Boolean {
+        // Быстрый визуальный фильтр: проверяем несколько участков экрана на типичные
+        // элементы Bedrock HUD (полосы/панели в нижней части и игровой центр).
+        // Это не идентификация игры по приватным данным, а фильтр изображения.
+        if (bitmap.width < 500 || bitmap.height < 300) return false
+        val w = bitmap.width
+        val h = bitmap.height
+        var nonDark = 0
+        var samples = 0
+        val yStart = (h * 0.72f).toInt().coerceAtLeast(0)
+        var y = yStart
+        while (y < h) {
+            var x = 0
+            while (x < w) {
+                val p = bitmap.getPixel(x, y)
+                val r = (p shr 16) and 255
+                val g = (p shr 8) and 255
+                val b = p and 255
+                if (r + g + b > 90) nonDark++
+                samples++
+                x += 24
+            }
+            y += 24
+        }
+        return samples > 0 && nonDark.toFloat() / samples > 0.08f
     }
 
     private fun imageToBitmap(image: Image): Bitmap {
