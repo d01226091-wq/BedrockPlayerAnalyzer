@@ -86,7 +86,15 @@ class MainActivity : AppCompatActivity() {
         }
         root.addView(status, lp(0, 10))
 
-        root.addView(menuButton("▶  ИГРАТЬ", Color.rgb(55, 150, 95)) {
+        root.addView(menuButton("▶  ИГРАТЬ В MINECRAFT", Color.rgb(55, 150, 95)) {
+            openMinecraft()
+        }, lp(0, 10))
+
+        root.addView(menuButton("🌐  ПОДКЛЮЧИТЬСЯ К СЕРВЕРУ", Color.rgb(55, 105, 145)) {
+            showServerDialog()
+        }, lp(0, 10))
+
+        root.addView(menuButton("◉  ЗАПУСТИТЬ АНАЛИЗ", Color.rgb(65, 75, 90)) {
             requestCapture()
         }, lp(0, 10))
 
@@ -159,6 +167,49 @@ class MainActivity : AppCompatActivity() {
             }
             setOnClickListener { action() }
         }
+
+    private fun openMinecraft() {
+        val intent = packageManager.getLaunchIntentForPackage("com.mojang.minecraftpe")
+        if (intent != null) startActivity(intent)
+        else Toast.makeText(this, "Minecraft Bedrock не найден", Toast.LENGTH_LONG).show()
+    }
+
+    private fun showServerDialog() {
+        val host = EditText(this).apply {
+            hint = "Адрес сервера"
+            setSingleLine(true)
+            setTextColor(Color.WHITE)
+            setHintTextColor(Color.GRAY)
+        }
+        val port = EditText(this).apply {
+            hint = "Порт (например 19132)"
+            setSingleLine(true)
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER
+            setTextColor(Color.WHITE)
+            setHintTextColor(Color.GRAY)
+        }
+        val box = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(20), dp(8), dp(20), 0)
+            addView(host)
+            addView(port, lp(8, 0))
+        }
+        AlertDialog.Builder(this)
+            .setTitle("Подключение к серверу")
+            .setView(box)
+            .setPositiveButton("ОТКРЫТЬ MINECRAFT") { _, _ ->
+                val address = host.text.toString().trim()
+                val p = port.text.toString().trim().ifEmpty { "19132" }
+                if (address.isEmpty()) {
+                    Toast.makeText(this, "Введите адрес сервера", Toast.LENGTH_SHORT).show()
+                } else {
+                    openMinecraft()
+                    Toast.makeText(this, "Сервер: $address:$p", Toast.LENGTH_LONG).show()
+                }
+            }
+            .setNegativeButton("ОТМЕНА", null)
+            .show()
+    }
 
     private fun startOverlay() {
         if (!Settings.canDrawOverlays(this)) {
