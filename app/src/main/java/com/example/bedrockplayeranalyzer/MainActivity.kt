@@ -165,21 +165,36 @@ class MainActivity : AppCompatActivity() {
         }
 
     private fun showPlayMenu() {
-        val items = arrayOf(
-            "🌱  СОЗДАТЬ МОЙ МИР",
-            "👥  ПОДКЛЮЧИТЬСЯ К ДРУГУ",
-            "🌐  ПОДКЛЮЧИТЬСЯ К СЕРВЕРУ"
-        )
+        val panel = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(18), dp(8), dp(18), dp(4))
+            setBackgroundColor(Color.rgb(30, 32, 37))
+        }
+
+        fun playButton(text: String, action: () -> Unit): Button =
+            Button(this).apply {
+                this.text = text
+                textSize = 16f
+                setTextColor(Color.WHITE)
+                typeface = Typeface.DEFAULT_BOLD
+                isAllCaps = false
+                minHeight = dp(58)
+                background = GradientDrawable().apply {
+                    setColor(Color.rgb(70, 72, 78))
+                    setStroke(dp(2), Color.rgb(20, 21, 24))
+                    cornerRadius = dp(3).toFloat()
+                }
+                setOnClickListener { action() }
+            }
+
+        panel.addView(playButton("ИГРАТЬ В МОЙ МИР") { createMyWorld() }, lp(0, 8))
+        panel.addView(playButton("ИГРАТЬ С ДРУГОМ") { connectToFriend() }, lp(0, 8))
+        panel.addView(playButton("СЕРВЕРЫ") { showServerDialog() }, lp(0, 4))
+
         AlertDialog.Builder(this)
             .setTitle("ИГРАТЬ")
-            .setItems(items) { _, which ->
-                when (which) {
-                    0 -> createMyWorld()
-                    1 -> connectToFriend()
-                    2 -> showServerDialog()
-                }
-            }
-            .setNegativeButton("ОТМЕНА", null)
+            .setView(panel)
+            .setNegativeButton("НАЗАД", null)
             .show()
     }
 
