@@ -33,6 +33,7 @@ class MainActivity : AppCompatActivity() {
             render()
         }
     }
+
     private val records = linkedMapOf<String, PlayerRecord>()
     private lateinit var list: LinearLayout
     private lateinit var status: TextView
@@ -87,10 +88,44 @@ class MainActivity : AppCompatActivity() {
             text = "▣ ВКЛЮЧИТЬ ОВЕРЛЕЙ"
             setOnClickListener {
                 if (!Settings.canDrawOverlays(this@MainActivity)) {
-                    startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + packageName)))
+                    startActivity(
+                        Intent(
+                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                            Uri.parse("package:" + packageName)
+                        )
+                    )
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Разреши показ поверх других приложений и вернись сюда",
+                        Toast.LENGTH_LONG
+                    ).show()
                 } else {
-                    startService(Intent(this@MainActivity, OverlayService::class.java))
-                    Toast.makeText(this@MainActivity, "Оверлей запущен", Toast.LENGTH_SHORT).show()
+                    try {
+                        startService(Intent(this@MainActivity, OverlayService::class.java))
+                        status.text = "● ОВЕРЛЕЙ ЗАПУЩЕН"
+                        status.setTextColor(Color.rgb(80, 220, 100))
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Цветные индикаторы включены",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } catch (e: SecurityException) {
+                        status.text = "● Нет разрешения на оверлей"
+                        status.setTextColor(Color.RED)
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Android не дал разрешение на оверлей",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    } catch (e: RuntimeException) {
+                        status.text = "● Не удалось запустить оверлей"
+                        status.setTextColor(Color.RED)
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Оверлей не запустился. Проверь разрешение «поверх других приложений».",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
                 }
             }
         }, lp())
@@ -102,7 +137,13 @@ class MainActivity : AppCompatActivity() {
         }
         root.addView(name, lp())
 
-        val signals = arrayOf("Необычная скорость", "Подозрительное наведение", "Аномальные удары", "Резкие движения", "Другое")
+        val signals = arrayOf(
+            "Необычная скорость",
+            "Подозрительное наведение",
+            "Аномальные удары",
+            "Резкие движения",
+            "Другое"
+        )
         val checks = signals.map { label ->
             CheckBox(this).apply {
                 text = label
@@ -125,9 +166,16 @@ class MainActivity : AppCompatActivity() {
                 val selected = checks.filter { it.isChecked }.map { it.text.toString() }
                 val old = records[player]
                 if (old == null) {
-                    records[player] = PlayerRecord(player, score.progress, 1, System.currentTimeMillis(), selected.toMutableList())
+                    records[player] = PlayerRecord(
+                        player,
+                        score.progress,
+                        1,
+                        System.currentTimeMillis(),
+                        selected.toMutableList()
+                    )
                 } else {
-                    old.score = ((old.score * old.observations) + score.progress) / (old.observations + 1)
+                    old.score = ((old.score * old.observations) + score.progress) /
+                        (old.observations + 1)
                     old.observations++
                     old.lastSeen = System.currentTimeMillis()
                     old.signals.addAll(selected)
@@ -189,9 +237,21 @@ class MainActivity : AppCompatActivity() {
             val label: String
             val color: Int
             when {
-                p.score >= 70 -> { icon = "🔴"; label = "СОФТ?"; color = Color.rgb(255, 90, 90) }
-                p.score >= 35 -> { icon = "🟡"; label = "ТРЕБУЕТ ПРОВЕРКИ"; color = Color.rgb(255, 210, 70) }
-                else -> { icon = "🟢"; label = "БЕЗ ЯВНЫХ ПРИЗНАКОВ"; color = Color.rgb(80, 220, 100) }
+                p.score >= 70 -> {
+                    icon = "🔴"
+                    label = "СОФТ?"
+                    color = Color.rgb(255, 90, 90)
+                }
+                p.score >= 35 -> {
+                    icon = "🟡"
+                    label = "ТРЕБУЕТ ПРОВЕРКИ"
+                    color = Color.rgb(255, 210, 70)
+                }
+                else -> {
+                    icon = "🟢"
+                    label = "БЕЗ ЯВНЫХ ПРИЗНАКОВ"
+                    color = Color.rgb(80, 220, 100)
+                }
             }
             val row = TextView(this).apply {
                 text = icon + " " + p.name + "\n" +
@@ -203,7 +263,10 @@ class MainActivity : AppCompatActivity() {
                 setPadding(14, 14, 14, 14)
                 setBackgroundColor(Color.rgb(30, 30, 30))
             }
-            val params = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            val params = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
             params.setMargins(0, 8, 0, 0)
             list.addView(row, params)
         }
@@ -231,7 +294,9 @@ class MainActivity : AppCompatActivity() {
                 val o = arr.getJSONObject(i)
                 val signals = mutableListOf<String>()
                 val s = o.optJSONArray("signals")
-                if (s != null) for (j in 0 until s.length()) signals.add(s.getString(j))
+                if (s != null) {
+                    for (j in 0 until s.length()) signals.add(s.getString(j))
+                }
                 val p = PlayerRecord(
                     o.getString("name"),
                     o.getInt("score"),
