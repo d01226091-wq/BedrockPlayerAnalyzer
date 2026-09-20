@@ -322,7 +322,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun showWorldPreview(name: String, seed: String, mode: Int) {
         val info = TextView(this).apply {
-            text = "МИР: " + name + "\\nРЕЖИМ: " + if (mode == 0) "ВЫЖИВАНИЕ" else "ТВОРЧЕСКИЙ" + "\\nSEED: " + seed + "\\n\\n" + buildWorldPreview(seed)
+            text = "МИР: " + name + "\nРЕЖИМ: " + (if (mode == 0) "ВЫЖИВАНИЕ" else "ТВОРЧЕСКИЙ") + "\nSEED: " + seed + "\n\n" + buildWorldPreview(seed)
             textSize = 12f
             typeface = Typeface.MONOSPACE
             setTextColor(Color.WHITE)
