@@ -60,7 +60,7 @@ class OverlayService : Service() {
         var markers: List<LiveMarker> = emptyList()
         var frames: Long = 0
 
-        private val circle = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        private val badge = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             style = Paint.Style.FILL
         }
         private val text = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -85,11 +85,15 @@ class OverlayService : Service() {
                     m.score >= 35 -> Color.rgb(245, 195, 45)
                     else -> Color.rgb(60, 210, 90)
                 }
-                circle.color = color
-                canvas.drawCircle(m.x, m.y, 10f, circle)
+
+                // Цветной индикатор непосредственно рядом с ником.
+                val nameX = m.x + 18f
+                val nameY = m.y + 8f
+                badge.color = color
+                canvas.drawCircle(nameX, m.y, 9f, badge)
 
                 text.color = Color.WHITE
-                canvas.drawText(m.name, m.x + 16f, m.y + 8f, text)
+                canvas.drawText(m.name, nameX + 16f, nameY, text)
 
                 small.color = color
                 val label = when {
@@ -97,7 +101,7 @@ class OverlayService : Service() {
                     m.score >= 35 -> "ПОДОЗРИТЕЛЬНО"
                     else -> "НИЗКИЙ РИСК"
                 }
-                canvas.drawText("$label • ${m.score}%", m.x + 16f, m.y + 32f, small)
+                canvas.drawText(label + " • " + m.score + "%", nameX + 16f, m.y + 32f, small)
             }
         }
     }
