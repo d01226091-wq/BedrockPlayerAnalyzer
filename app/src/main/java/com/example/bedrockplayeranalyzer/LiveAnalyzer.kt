@@ -75,7 +75,7 @@ class LiveAnalyzer(private val context: Context) {
         for (block in result.textBlocks) {
             val box = block.boundingBox ?: continue
             val raw = block.text.trim().replace("\n", " ")
-            val name = raw.replace(Regex("[^A-Za-z0-9_\-А-Яа-яЁё]"), "")
+            val name = raw.replace(Regex("[^A-Za-z0-9_А-Яа-яЁё-]"), "")
             if (!looksLikePlayerName(name, box, current.width, current.height)) continue
 
             val localMotion = motionAround(box, current, old)
