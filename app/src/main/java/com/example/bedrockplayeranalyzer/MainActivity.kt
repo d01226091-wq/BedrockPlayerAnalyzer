@@ -60,7 +60,7 @@ class MainActivity : AppCompatActivity() {
         scroll.addView(root)
 
         val title = TextView(this).apply {
-            text = "BEDROCK PLAYER ANALYZER"
+            text = "BPA MOD CLIENT"
             textSize = 22f
             setTextColor(Color.WHITE)
             setTypeface(null, android.graphics.Typeface.BOLD)
@@ -68,14 +68,14 @@ class MainActivity : AppCompatActivity() {
         root.addView(title, lp())
 
         val subtitle = TextView(this).apply {
-            text = "Minecraft Bedrock 1.26.40.5 • LIVE ANALYTICS"
+            text = "BEDROCK • MOD HUD • LIVE ANALYTICS"
             textSize = 13f
             setTextColor(Color.LTGRAY)
         }
         root.addView(subtitle, lp())
 
         status = TextView(this).apply {
-            text = "● Анализатор готов"
+            text = "● MOD CLIENT ГОТОВ"
             textSize = 15f
             setTextColor(Color.rgb(80, 220, 100))
             setPadding(0, 18, 0, 18)
@@ -92,12 +92,12 @@ class MainActivity : AppCompatActivity() {
         root.addView(stats, lp(0, 10))
 
         root.addView(Button(this).apply {
-            text = "▶ ЗАПУСТИТЬ LIVE-АНАЛИЗ"
+            text = "▶ ВКЛЮЧИТЬ MOD HUD"
             setOnClickListener { requestCapture() }
         }, lp())
 
         root.addView(Button(this).apply {
-            text = "▣ ВКЛЮЧИТЬ ОВЕРЛЕЙ"
+            text = "▣ ПОКАЗАТЬ HUD ПОВЕРХ ИГРЫ"
             setOnClickListener {
                 if (!Settings.canDrawOverlays(this@MainActivity)) {
                     startActivity(
@@ -168,7 +168,7 @@ class MainActivity : AppCompatActivity() {
         root.addView(score, lp())
 
         root.addView(Button(this).apply {
-            text = "СОХРАНИТЬ НАБЛЮДЕНИЕ"
+            text = "ДОБАВИТЬ В MOD-ПРОФИЛЬ"
             setOnClickListener {
                 val player = name.text.toString().trim()
                 if (player.isEmpty()) {
@@ -201,7 +201,7 @@ class MainActivity : AppCompatActivity() {
         }, lp())
 
         root.addView(Button(this).apply {
-            text = "ОЧИСТИТЬ ИСТОРИЮ"
+            text = "ОЧИСТИТЬ MOD-ПРОФИЛИ"
             setOnClickListener {
                 records.clear()
                 saveRecords()
@@ -210,7 +210,7 @@ class MainActivity : AppCompatActivity() {
         }, lp())
 
         root.addView(TextView(this).apply {
-            text = "Важно: красный означает высокий поведенческий балл, а не доказанное наличие чита. Приложение видит только экран, автоматически запоминает наблюдения по никам и со временем усредняет результат."
+            text = "MOD HUD работает поверх Minecraft: показывает цветные маркеры и поведенческий балл по тому, что видно на экране. Это отдельный Android-оверлей, а не изменённый APK Minecraft."
             textSize = 12f
             setTextColor(Color.LTGRAY)
             setPadding(0, 14, 0, 14)
