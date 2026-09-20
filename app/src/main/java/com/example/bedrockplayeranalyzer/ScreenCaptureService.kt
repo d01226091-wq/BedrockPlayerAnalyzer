@@ -202,7 +202,7 @@ class ScreenCaptureService : Service() {
         return cropped
     }
 
-    private fun stopCapture() {
+    private fun stopCapture(stopProjection: Boolean = true) {
         try {
             display?.release()
         } catch (_: Throwable) {
@@ -221,16 +221,18 @@ class ScreenCaptureService : Service() {
         } catch (_: Throwable) {
         }
 
-        try {
-            projection?.stop()
-        } catch (_: Throwable) {
+        if (stopProjection) {
+            try {
+                projection?.stop()
+            } catch (_: Throwable) {
+            }
         }
         projection = null
     }
 
     private val projectionCallback = object : MediaProjection.Callback() {
         override fun onStop() {
-            stopCapture()
+            stopCapture(stopProjection = false)
         }
     }
 
