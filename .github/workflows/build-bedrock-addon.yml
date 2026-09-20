@@ -1,0 +1,48 @@
+name: Build Bedrock Analyzer Addon
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'bedrock-addon/**'
+      - '.github/workflows/build-bedrock-addon.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: bedrock-addon
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: bedrock-addon/package.json
+      - run: npm install
+      - run: npm run build
+      - name: Download matching @bedrock-core/ui render pack
+        working-directory: .
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p bedrock-addon/dist/core-ui
+          url="https://api.github.com/repos/bedrock-core/ui/releases/tags/v0.11.0"
+          assets="$(curl -fsSL "$url" | jq -r '.assets[] | [.name,.browser_download_url] | @tsv')"
+          asset_url="$(printf '%s\n' "$assets" | awk '$1 ~ /^core-ui-v.*\\.mcpack$/ {print $2; exit}')"
+          if [ -z "$asset_url" ]; then
+            echo "Could not find the core-ui render pack for v0.11.0"
+            exit 1
+          fi
+          curl -fL "$asset_url" -o bedrock-addon/dist/core-ui/core-ui.mcpack
+      - name: Create mcaddon archive
+        working-directory: bedrock-addon
+        run: |
+          mkdir -p dist
+          cd dist
+          zip -r ../bedrock-player-analyzer.mcaddon BP RP core-ui
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bedrock-player-analyzer-mcaddon
+          path: bedrock-addon/bedrock-player-analyzer.mcaddon
