@@ -25,6 +25,14 @@ data class PlayerRecord(
 )
 
 class MainActivity : AppCompatActivity() {
+
+    override fun onResume() {
+        super.onResume()
+        if (::list.isInitialized) {
+            loadRecords()
+            render()
+        }
+    }
     private val records = linkedMapOf<String, PlayerRecord>()
     private lateinit var list: LinearLayout
     private lateinit var status: TextView
@@ -142,7 +150,7 @@ class MainActivity : AppCompatActivity() {
         }, lp())
 
         root.addView(TextView(this).apply {
-            text = "Важно: приложение не может заглянуть в устройство другого игрока и не может достоверно доказать наличие чита. Live-режим работает с тем, что видно на экране, а результат является оценкой поведения."
+            text = "Важно: красный означает высокий поведенческий балл, а не доказанное наличие чита. Приложение видит только экран, автоматически запоминает наблюдения по никам и со временем усредняет результат."
             textSize = 12f
             setTextColor(Color.LTGRAY)
             setPadding(0, 14, 0, 14)
@@ -181,9 +189,9 @@ class MainActivity : AppCompatActivity() {
             val label: String
             val color: Int
             when {
-                p.score >= 70 -> { icon = "🔴"; label = "ПОДОЗРИТЕЛЬНО"; color = Color.rgb(255, 90, 90) }
+                p.score >= 70 -> { icon = "🔴"; label = "СОФТ?"; color = Color.rgb(255, 90, 90) }
                 p.score >= 35 -> { icon = "🟡"; label = "ТРЕБУЕТ ПРОВЕРКИ"; color = Color.rgb(255, 210, 70) }
-                else -> { icon = "🟢"; label = "НИЗКИЙ РИСК"; color = Color.rgb(80, 220, 100) }
+                else -> { icon = "🟢"; label = "БЕЗ ЯВНЫХ ПРИЗНАКОВ"; color = Color.rgb(80, 220, 100) }
             }
             val row = TextView(this).apply {
                 text = icon + " " + p.name + "\n" +
