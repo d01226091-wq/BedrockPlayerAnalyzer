@@ -144,7 +144,7 @@ class LiveAnalyzer(private val context: Context) {
                 LiveMarker(
                     name = name.take(24),
                     x = box.centerX() * scaleX,
-                    y = box.bottom * scaleY,
+                    y = (box.top - max(14, box.height() / 2)) * scaleY,
                     score = score
                 )
             )
