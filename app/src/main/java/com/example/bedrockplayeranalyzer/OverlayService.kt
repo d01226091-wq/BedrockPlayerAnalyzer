@@ -105,9 +105,23 @@ class OverlayService : Service() {
         override fun onDraw(canvas: Canvas) {
             super.onDraw(canvas)
 
+            // Компактный игровой HUD: приложение выглядит как модифицированный клиент,
+            // но не вмешивается в код Minecraft.
+            badge.color = Color.argb(190, 18, 18, 18)
+            canvas.drawRoundRect(14f, 14f, 285f, 72f, 10f, 10f, badge)
+            small.color = Color.WHITE
+            small.textSize = 17f
+            canvas.drawText("BPA MOD • LIVE", 28f, 38f, small)
+            small.textSize = 13f
+            small.color = Color.LTGRAY
+            canvas.drawText("Игроков: " + markers.size + "  |  кадры: " + frames, 28f, 59f, small)
+
             if (markers.isEmpty()) {
+                badge.color = Color.argb(170, 18, 18, 18)
+                canvas.drawRoundRect(14f, 82f, 235f, 122f, 8f, 8f, badge)
                 small.color = Color.WHITE
-                canvas.drawText("ANALYZER • ждёт игроков", 20f, 45f, small)
+                small.textSize = 14f
+                canvas.drawText("Сканирование игроков…", 27f, 107f, small)
                 return
             }
 
@@ -122,11 +136,15 @@ class OverlayService : Service() {
                 badge.color = color
                 canvas.drawCircle(m.x, m.y, 10f, badge)
 
+                // Небольшой HUD-бейдж рядом с игроком.
+                badge.color = Color.argb(185, 15, 15, 15)
+                val left = (m.x + 15f).coerceAtMost(width - 105f)
+                val top = (m.y - 34f).coerceAtLeast(8f)
+                canvas.drawRoundRect(left, top, left + 92f, top + 30f, 7f, 7f, badge)
                 small.color = Color.WHITE
-                small.textSize = 18f
+                small.textSize = 16f
                 val scoreText = m.score.toString() + "%"
-                val textWidth = small.measureText(scoreText)
-                canvas.drawText(scoreText, m.x - textWidth / 2f, m.y - 15f, small)
+                canvas.drawText("BPA  " + scoreText, left + 10f, top + 20f, small)
             }
         }
     }
