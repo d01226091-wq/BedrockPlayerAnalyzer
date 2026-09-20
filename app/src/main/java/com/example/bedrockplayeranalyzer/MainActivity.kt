@@ -165,35 +165,87 @@ class MainActivity : AppCompatActivity() {
         }
 
     private fun showPlayMenu() {
-        val panel = LinearLayout(this).apply {
+        val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(18), dp(8), dp(18), dp(4))
-            setBackgroundColor(Color.rgb(30, 32, 37))
+            setPadding(dp(10), dp(4), dp(10), dp(4))
+            setBackgroundColor(Color.rgb(30, 32, 36))
         }
 
-        fun playButton(text: String, action: () -> Unit): Button =
+        val tabs = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+        }
+
+        fun tab(title: String, action: () -> Unit): Button =
             Button(this).apply {
-                this.text = text
-                textSize = 16f
+                text = title
+                textSize = 13f
                 setTextColor(Color.WHITE)
                 typeface = Typeface.DEFAULT_BOLD
                 isAllCaps = false
-                minHeight = dp(58)
                 background = GradientDrawable().apply {
                     setColor(Color.rgb(70, 72, 78))
-                    setStroke(dp(2), Color.rgb(20, 21, 24))
-                    cornerRadius = dp(3).toFloat()
+                    setStroke(dp(1), Color.rgb(25, 26, 29))
                 }
                 setOnClickListener { action() }
             }
 
-        panel.addView(playButton("ИГРАТЬ В МОЙ МИР") { createMyWorld() }, lp(0, 8))
-        panel.addView(playButton("ИГРАТЬ С ДРУГОМ") { connectToFriend() }, lp(0, 8))
-        panel.addView(playButton("СЕРВЕРЫ") { showServerDialog() }, lp(0, 4))
+        tabs.addView(tab("МИРЫ") { createMyWorld() },
+            LinearLayout.LayoutParams(0, dp(54), 1f))
+        tabs.addView(tab("ИГРА С ДРУГОМ") { connectToFriend() },
+            LinearLayout.LayoutParams(0, dp(54), 1f))
+        tabs.addView(tab("СЕРВЕРЫ") { showServerDialog() },
+            LinearLayout.LayoutParams(0, dp(54), 1f))
+        root.addView(tabs)
+
+        root.addView(TextView(this).apply {
+            text = "МИРЫ"
+            textSize = 18f
+            gravity = Gravity.CENTER
+            setTextColor(Color.WHITE)
+            typeface = Typeface.DEFAULT_BOLD
+            setPadding(0, dp(18), 0, dp(12))
+        }, lp())
+
+        val worlds = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.START
+        }
+
+        val create = Button(this).apply {
+            text = "＋\nСОЗДАТЬ МИР"
+            textSize = 16f
+            setTextColor(Color.WHITE)
+            typeface = Typeface.DEFAULT_BOLD
+            isAllCaps = false
+            gravity = Gravity.CENTER
+            minWidth = dp(210)
+            minHeight = dp(100)
+            background = GradientDrawable().apply {
+                setColor(Color.rgb(75, 125, 72))
+                setStroke(dp(2), Color.rgb(28, 45, 27))
+                cornerRadius = dp(3).toFloat()
+            }
+            setOnClickListener { createMyWorld() }
+        }
+        worlds.addView(create, LinearLayout.LayoutParams(dp(220), dp(105)))
+
+        worlds.addView(TextView(this).apply {
+            text = "Создай новый мир в Minecraft Bedrock"
+            textSize = 12f
+            setTextColor(Color.LTGRAY)
+            setPadding(dp(4), dp(10), 0, dp(4))
+        })
+
+        root.addView(worlds, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            0,
+            1f
+        ))
 
         AlertDialog.Builder(this)
             .setTitle("ИГРАТЬ")
-            .setView(panel)
+            .setView(root)
             .setNegativeButton("НАЗАД", null)
             .show()
     }
