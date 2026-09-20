@@ -90,10 +90,6 @@ class MainActivity : AppCompatActivity() {
             showPlayMenu()
         }, lp(0, 10))
 
-        root.addView(menuButton("🌐  ПОДКЛЮЧИТЬСЯ К СЕРВЕРУ", Color.rgb(55, 105, 145)) {
-            showServerDialog()
-        }, lp(0, 10))
-
         root.addView(menuButton("◉  ЗАПУСТИТЬ АНАЛИЗ", Color.rgb(65, 75, 90)) {
             requestCapture()
         }, lp(0, 10))
@@ -256,12 +252,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showSettings() {
-        val items = arrayOf(
+        val controls = arrayOf(
+            "Обычное управление Minecraft",
+            "Управление касанием",
             "Автоанализ экрана",
             "Показывать цветные маркеры",
             "Сохранять историю игроков"
         )
-        val checked = booleanArrayOf(true, true, true)
+        val checked = booleanArrayOf(true, true, true, true, true)
         AlertDialog.Builder(this)
             .setTitle("Настройки")
             .setMultiChoiceItems(items, checked) { _, _, _ -> }
