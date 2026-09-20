@@ -53,21 +53,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buildUi() {
-        val scroll = ScrollView(this)
+        val scroll = ScrollView(this).apply {
+            isFillViewport = true
+        }
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_HORIZONTAL
-            setPadding(dp(22), dp(30), dp(22), dp(30))
-            setBackgroundColor(Color.rgb(20, 22, 27))
+            setPadding(dp(18), dp(22), dp(18), dp(24))
+            setBackgroundColor(Color.rgb(35, 37, 42))
         }
         scroll.addView(root)
 
         root.addView(TextView(this).apply {
             text = "BEDROCK ANALYZER"
-            textSize = 26f
+            textSize = 28f
             gravity = Gravity.CENTER
             setTextColor(Color.WHITE)
             setTypeface(Typeface.DEFAULT, Typeface.BOLD)
+            setShadowLayer(dp(2).toFloat(), 0f, dp(2).toFloat(), Color.BLACK)
         }, lp(0, 4))
 
         root.addView(TextView(this).apply {
@@ -86,15 +89,15 @@ class MainActivity : AppCompatActivity() {
         }
         root.addView(status, lp(0, 10))
 
-        root.addView(menuButton("▶  ИГРАТЬ В MINECRAFT", Color.rgb(55, 150, 95)) {
+        root.addView(menuButton("▶  ИГРАТЬ", Color.rgb(76, 126, 72)) {
             showPlayMenu()
         }, lp(0, 10))
 
-        root.addView(menuButton("◉  ЗАПУСТИТЬ АНАЛИЗ", Color.rgb(65, 75, 90)) {
+        root.addView(menuButton("◉  АНАЛИЗ ЭКРАНА", Color.rgb(72, 74, 80)) {
             requestCapture()
         }, lp(0, 10))
 
-        root.addView(menuButton("⚙  НАСТРОЙКИ", Color.rgb(65, 75, 90)) {
+        root.addView(menuButton("⚙  НАСТРОЙКИ", Color.rgb(72, 74, 80)) {
             showSettings()
         }, lp(0, 10))
 
