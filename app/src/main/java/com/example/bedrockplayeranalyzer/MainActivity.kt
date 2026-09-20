@@ -55,167 +55,175 @@ class MainActivity : AppCompatActivity() {
         val scroll = ScrollView(this)
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(24, 24, 24, 24)
-            setBackgroundColor(Color.rgb(25, 25, 25))
+            gravity = Gravity.CENTER_HORIZONTAL
+            setPadding(dp(22), dp(30), dp(22), dp(30))
+            setBackgroundColor(Color.rgb(20, 22, 27))
         }
         scroll.addView(root)
 
-        val title = TextView(this).apply {
-            text = "BPA MOD CLIENT"
-            textSize = 22f
+        root.addView(TextView(this).apply {
+            text = "BEDROCK ANALYZER"
+            textSize = 26f
+            gravity = Gravity.CENTER
             setTextColor(Color.WHITE)
-            setTypeface(Typeface.MONOSPACE, Typeface.BOLD)
-        }
-        root.addView(title, lp())
-
-        val subtitle = TextView(this).apply {
-            text = "BEDROCK • ANALYZER • LIVE HUD"
-            textSize = 13f
-            setTextColor(Color.LTGRAY)
-        }
-        root.addView(subtitle, lp())
-
-        status = TextView(this).apply {
-            text = "● MOD CLIENT ГОТОВ"
-            textSize = 15f
-            setTextColor(Color.rgb(80, 220, 100))
-            setPadding(0, 18, 0, 18)
-        }
-        root.addView(status, lp())
-
-        stats = TextView(this).apply {
-            text = "Игроков: 0   •   Средний балл: 0%"
-            textSize = 14f
-            setTextColor(Color.WHITE)
-            setPadding(dp(14), dp(12), dp(14), dp(12))
-            setBackgroundColor(Color.rgb(25, 27, 32))
-        }
-        root.addView(stats, lp(0, 10))
-
-        root.addView(blockButton("▶  ВКЛЮЧИТЬ LIVE HUD") { requestCapture() }, lp())
-
-        root.addView(blockButton("▣  ПОКАЗАТЬ HUD ПОВЕРХ ИГРЫ")
-            setOnClickListener {
-                if (!Settings.canDrawOverlays(this@MainActivity)) {
-                    startActivity(
-                        Intent(
-                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                            Uri.parse("package:" + packageName)
-                        )
-                    )
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Разреши показ поверх других приложений и вернись сюда",
-                        Toast.LENGTH_LONG
-                    ).show()
-                } else {
-                    try {
-                        startService(Intent(this@MainActivity, OverlayService::class.java))
-                        status.text = "● ОВЕРЛЕЙ ЗАПУЩЕН"
-                        status.setTextColor(Color.rgb(80, 220, 100))
-                        Toast.makeText(
-                            this@MainActivity,
-                            "Цветные индикаторы включены",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    } catch (e: SecurityException) {
-                        status.text = "● Нет разрешения на оверлей"
-                        status.setTextColor(Color.RED)
-                        Toast.makeText(
-                            this@MainActivity,
-                            "Android не дал разрешение на оверлей",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    } catch (e: RuntimeException) {
-                        status.text = "● Не удалось запустить оверлей"
-                        status.setTextColor(Color.RED)
-                        Toast.makeText(
-                            this@MainActivity,
-                            "Оверлей не запустился. Проверь разрешение «поверх других приложений».",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                }
-            }
-        }, lp())
-
-        val name = EditText(this).apply {
-            hint = "Ник игрока"
-            setHintTextColor(Color.GRAY)
-            setTextColor(Color.WHITE)
-        }
-        root.addView(name, lp())
-
-        val signals = arrayOf(
-            "Необычная скорость",
-            "Подозрительное наведение",
-            "Аномальные удары",
-            "Резкие движения",
-            "Другое"
-        )
-        val checks = signals.map { label ->
-            CheckBox(this).apply {
-                text = label
-                setTextColor(Color.WHITE)
-            }
-        }
-        checks.forEach { root.addView(it, lp()) }
-
-        val score = SeekBar(this).apply { max = 100; progress = 0 }
-        root.addView(score, lp())
-
-        root.addView(blockButton("ДОБАВИТЬ В ПРОФИЛЬ")
-            setOnClickListener {
-                val player = name.text.toString().trim()
-                if (player.isEmpty()) {
-                    Toast.makeText(this@MainActivity, "Введите ник", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
-                val selected = checks.filter { it.isChecked }.map { it.text.toString() }
-                val old = records[player]
-                if (old == null) {
-                    records[player] = PlayerRecord(
-                        player,
-                        score.progress,
-                        1,
-                        System.currentTimeMillis(),
-                        selected.toMutableList()
-                    )
-                } else {
-                    old.score = ((old.score * old.observations) + score.progress) /
-                        (old.observations + 1)
-                    old.observations++
-                    old.lastSeen = System.currentTimeMillis()
-                    old.signals.addAll(selected)
-                }
-                saveRecords()
-                name.text.clear()
-                checks.forEach { it.isChecked = false }
-                score.progress = 0
-                render()
-            }
-        }, lp())
-
-        root.addView(blockButton("ОЧИСТИТЬ ПРОФИЛИ")
-            setOnClickListener {
-                records.clear()
-                saveRecords()
-                render()
-            }
-        }, lp())
+            setTypeface(Typeface.DEFAULT, Typeface.BOLD)
+        }, lp(0, 4))
 
         root.addView(TextView(this).apply {
-            text = "HUD в стиле Minecraft: квадратные панели, контрастные кнопки и цветные маркеры. Это отдельный Android-оверлей, а не изменённый APK Minecraft."
+            text = "PLAYER ANALYTICS"
             textSize = 12f
-            setTextColor(Color.LTGRAY)
-            setPadding(0, 14, 0, 14)
+            gravity = Gravity.CENTER
+            setTextColor(Color.rgb(150, 160, 175))
+        }, lp(0, 22))
+
+        status = TextView(this).apply {
+            text = "● ГОТОВ"
+            textSize = 13f
+            gravity = Gravity.CENTER
+            setTextColor(Color.rgb(85, 220, 120))
+            setPadding(0, dp(8), 0, dp(8))
+        }
+        root.addView(status, lp(0, 10))
+
+        root.addView(menuButton("▶  ИГРАТЬ", Color.rgb(55, 150, 95)) {
+            requestCapture()
+        }, lp(0, 10))
+
+        root.addView(menuButton("⚙  НАСТРОЙКИ", Color.rgb(65, 75, 90)) {
+            showSettings()
+        }, lp(0, 10))
+
+        root.addView(menuButton("▣  HUD ПОВЕРХ ИГРЫ", Color.rgb(65, 75, 90)) {
+            startOverlay()
+        }, lp(0, 18))
+
+        stats = TextView(this).apply {
+            text = "ИГРОКОВ  0    •    СРЕДНИЙ БАЛЛ  0%"
+            textSize = 13f
+            gravity = Gravity.CENTER
+            setTextColor(Color.WHITE)
+            setPadding(dp(12), dp(14), dp(12), dp(14))
+            background = GradientDrawable().apply {
+                setColor(Color.rgb(30, 33, 40))
+                cornerRadius = dp(6).toFloat()
+            }
+        }
+        root.addView(stats, lp(0, 18))
+
+        root.addView(TextView(this).apply {
+            text = "ПОСЛЕДНИЕ НАБЛЮДЕНИЯ"
+            textSize = 12f
+            setTextColor(Color.rgb(145, 155, 170))
+            setPadding(dp(4), dp(8), dp(4), dp(8))
         }, lp())
 
-        list = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        list = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+        }
         root.addView(list, lp())
+
+        root.addView(menuButton("＋  ДОБАВИТЬ НАБЛЮДЕНИЕ", Color.rgb(65, 75, 90)) {
+            showManualPanel(root)
+        }, lp(0, 10))
+
+        root.addView(menuButton("×  ОЧИСТИТЬ ДАННЫЕ", Color.rgb(75, 55, 60)) {
+            records.clear()
+            saveRecords()
+            render()
+        }, lp(0, 10))
+
+        root.addView(TextView(this).apply {
+            text = "Уникальный интерфейс анализатора. Анализ работает только по тому, что видно на экране."
+            textSize = 11f
+            gravity = Gravity.CENTER
+            setTextColor(Color.rgb(125, 135, 150))
+            setPadding(dp(8), dp(22), dp(8), dp(8))
+        }, lp())
+
         setContentView(scroll)
     }
 
+    private fun menuButton(title: String, color: Int, action: () -> Unit): Button =
+        Button(this).apply {
+            text = title
+            textSize = 15f
+            setTextColor(Color.WHITE)
+            typeface = Typeface.DEFAULT_BOLD
+            isAllCaps = false
+            minHeight = dp(54)
+            background = GradientDrawable().apply {
+                setColor(color)
+                cornerRadius = dp(7).toFloat()
+                setStroke(dp(1), Color.argb(80, 255, 255, 255))
+            }
+            setOnClickListener { action() }
+        }
+
+    private fun startOverlay() {
+        if (!Settings.canDrawOverlays(this)) {
+            startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + packageName)))
+            Toast.makeText(this, "Разреши показ поверх других приложений", Toast.LENGTH_LONG).show()
+            return
+        }
+        runCatching {
+            startService(Intent(this, OverlayService::class.java))
+            status.text = "● HUD ЗАПУЩЕН"
+        }.onFailure {
+            status.text = "● ОШИБКА HUD"
+            Toast.makeText(this, "Не удалось запустить HUD", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun showSettings() {
+        val items = arrayOf(
+            "Автоанализ экрана",
+            "Показывать цветные маркеры",
+            "Сохранять историю игроков"
+        )
+        val checked = booleanArrayOf(true, true, true)
+        AlertDialog.Builder(this)
+            .setTitle("Настройки")
+            .setMultiChoiceItems(items, checked) { _, _, _ -> }
+            .setPositiveButton("Готово", null)
+            .setNegativeButton("Отмена", null)
+            .show()
+    }
+
+    private fun showManualPanel(root: LinearLayout) {
+        val name = EditText(this).apply {
+            hint = "Ник игрока"
+            setTextColor(Color.WHITE)
+            setHintTextColor(Color.GRAY)
+        }
+        val score = SeekBar(this).apply { max = 100 }
+        val checks = arrayOf(
+            CheckBox(this).apply { text = "Необычная скорость" },
+            CheckBox(this).apply { text = "Подозрительное наведение" },
+            CheckBox(this).apply { text = "Аномальные удары" }
+        )
+        AlertDialog.Builder(this)
+            .setTitle("Новое наблюдение")
+            .setView(LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(dp(20), dp(8), dp(20), dp(8))
+                addView(name)
+                checks.forEach { addView(it) }
+                addView(score)
+            })
+            .setPositiveButton("Сохранить") { _, _ ->
+                val player = name.text.toString().trim()
+                if (player.isNotEmpty()) {
+                    records[player] = PlayerRecord(
+                        player, score.progress, 1, System.currentTimeMillis(),
+                        checks.filter { it.isChecked }.map { it.text.toString() }.toMutableList()
+                    )
+                    saveRecords()
+                    render()
+                }
+            }
+            .setNegativeButton("Отмена", null)
+            .show()
+    }
 
     private fun blockButton(title: String, action: () -> Unit): Button =
         Button(this).apply {
