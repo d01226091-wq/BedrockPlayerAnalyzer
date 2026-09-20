@@ -9,6 +9,7 @@ import android.graphics.PixelFormat
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.provider.Settings
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
@@ -17,9 +18,11 @@ class OverlayService : Service() {
     private var window: WindowManager? = null
     private var view: AnalyzerOverlayView? = null
     private val handler = Handler(Looper.getMainLooper())
+    private var attached = false
 
     private val refresh = object : Runnable {
         override fun run() {
+            if (!attached) return
             view?.markers = AnalyzerBus.markers
             view?.frames = AnalyzerBus.analyzedFrames
             view?.invalidate()
@@ -29,7 +32,19 @@ class OverlayService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        window = getSystemService(WINDOW_SERVICE) as WindowManager
+
+        // Android запрещает TYPE_APPLICATION_OVERLAY без специального разрешения.
+        if (!Settings.canDrawOverlays(this)) {
+            stopSelf()
+            return
+        }
+
+        window = getSystemService(WINDOW_SERVICE) as? WindowManager
+        if (window == null) {
+            stopSelf()
+            return
+        }
+
         view = AnalyzerOverlayView().apply {
             markers = AnalyzerBus.markers
         }
@@ -45,13 +60,29 @@ class OverlayService : Service() {
         ).apply {
             gravity = Gravity.TOP or Gravity.START
         }
-        window?.addView(view, params)
-        handler.post(refresh)
+
+        try {
+            window?.addView(view, params)
+            attached = true
+            handler.post(refresh)
+        } catch (_: SecurityException) {
+            view = null
+            stopSelf()
+        } catch (_: WindowManager.BadTokenException) {
+            view = null
+            stopSelf()
+        } catch (_: RuntimeException) {
+            view = null
+            stopSelf()
+        }
     }
 
     override fun onDestroy() {
         handler.removeCallbacks(refresh)
-        view?.let { runCatching { window?.removeView(it) } }
+        if (attached) {
+            view?.let { runCatching { window?.removeView(it) } }
+        }
+        attached = false
         view = null
         super.onDestroy()
     }
@@ -73,6 +104,7 @@ class OverlayService : Service() {
 
         override fun onDraw(canvas: Canvas) {
             super.onDraw(canvas)
+
             if (markers.isEmpty()) {
                 small.color = Color.WHITE
                 canvas.drawText("ANALYZER • ждёт игроков", 20f, 45f, small)
@@ -86,9 +118,10 @@ class OverlayService : Service() {
                     else -> Color.rgb(60, 210, 90)
                 }
 
-                // Цветной индикатор непосредственно рядом с ником.
+                // Цветной кружок непосредственно рядом с ником.
                 val nameX = m.x + 18f
                 val nameY = m.y + 8f
+
                 badge.color = color
                 canvas.drawCircle(nameX, m.y, 9f, badge)
 
@@ -101,7 +134,12 @@ class OverlayService : Service() {
                     m.score >= 35 -> "ПОДОЗРИТЕЛЬНО"
                     else -> "НИЗКИЙ РИСК"
                 }
-                canvas.drawText(label + " • " + m.score + "%", nameX + 16f, m.y + 32f, small)
+                canvas.drawText(
+                    label + " • " + m.score + "%",
+                    nameX + 16f,
+                    m.y + 32f,
+                    small
+                )
             }
         }
     }
