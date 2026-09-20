@@ -254,8 +254,100 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun createMyWorld() {
-        openMinecraftPlay()
-        Toast.makeText(this, "Открой «Создать» в Minecraft Bedrock", Toast.LENGTH_LONG).show()
+        showWorldStudio()
+    }
+
+    private fun showWorldStudio() {
+        val name = EditText(this).apply {
+            hint = "Название мира"
+            setSingleLine(true)
+            setTextColor(Color.WHITE)
+            setHintTextColor(Color.GRAY)
+            setText("Новый мир")
+        }
+        val seed = EditText(this).apply {
+            hint = "Seed (необязательно)"
+            setSingleLine(true)
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_CLASS_TEXT
+            setTextColor(Color.WHITE)
+            setHintTextColor(Color.GRAY)
+        }
+        val modes = arrayOf("Выживание", "Творческий")
+        val mode = Spinner(this).apply {
+            adapter = ArrayAdapter(this@MainActivity, android.R.layout.simple_spinner_dropdown_item, modes)
+        }
+        val preview = TextView(this).apply {
+            text = buildWorldPreview(seed.text.toString())
+            textSize = 11f
+            typeface = Typeface.MONOSPACE
+            setTextColor(Color.rgb(210, 220, 210))
+            setPadding(dp(10), dp(12), dp(10), dp(12))
+            setBackgroundColor(Color.rgb(22, 28, 22))
+        }
+        seed.setOnEditorActionListener { _, _, _ ->
+            preview.text = buildWorldPreview(seed.text.toString())
+            false
+        }
+
+        val box = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(18), dp(4), dp(18), 0)
+            addView(label("МИР В ПРИЛОЖЕНИИ", 12f, Color.rgb(100, 220, 120), true))
+            addView(name, lp(8, 0))
+            addView(seed, lp(8, 0))
+            addView(mode, lp(8, 0))
+            addView(preview, lp(12, 0))
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("СОЗДАНИЕ МИРА")
+            .setView(box)
+            .setPositiveButton("СОЗДАТЬ") { _, _ ->
+                val worldName = name.text.toString().trim().ifEmpty { "Новый мир" }
+                val worldSeed = seed.text.toString().trim().ifEmpty { System.currentTimeMillis().toString() }
+                saveLocalWorld(worldName, worldSeed, mode.selectedItemPosition)
+                showWorldPreview(worldName, worldSeed, mode.selectedItemPosition)
+            }
+            .setNegativeButton("НАЗАД", null)
+            .show()
+    }
+
+    private fun saveLocalWorld(name: String, seed: String, mode: Int) {
+        prefs.edit()
+            .putString("local_world_name", name)
+            .putString("local_world_seed", seed)
+            .putInt("local_world_mode", mode)
+            .apply()
+    }
+
+    private fun showWorldPreview(name: String, seed: String, mode: Int) {
+        val info = TextView(this).apply {
+            text = "МИР: " + name + "\\nРЕЖИМ: " + if (mode == 0) "ВЫЖИВАНИЕ" else "ТВОРЧЕСКИЙ" + "\\nSEED: " + seed + "\\n\\n" + buildWorldPreview(seed)
+            textSize = 12f
+            typeface = Typeface.MONOSPACE
+            setTextColor(Color.WHITE)
+            setPadding(dp(18), dp(10), dp(18), dp(10))
+            setBackgroundColor(Color.rgb(24, 27, 30))
+        }
+        AlertDialog.Builder(this)
+            .setTitle("МИР СОЗДАН")
+            .setView(info)
+            .setPositiveButton("ГОТОВО", null)
+            .show()
+    }
+
+    private fun buildWorldPreview(seedText: String): String {
+        val seed = seedText.hashCode().toLong()
+        val chars = charArrayOf('·', '·', '·', '▒', '▓', '▓', '█')
+        val out = StringBuilder()
+        for (y in 0 until 11) {
+            for (x in 0 until 19) {
+                val n = ((seed + x * 31L + y * 97L + x * y * 13L) xor (seed ushr ((x + y) % 7))).toInt()
+                out.append(chars[kotlin.math.abs(n) % chars.size])
+            }
+            out.append('\\n')
+        }
+        return out.toString()
     }
 
     private fun connectToFriend() {
