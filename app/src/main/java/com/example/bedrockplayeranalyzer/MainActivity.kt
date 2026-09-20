@@ -254,25 +254,28 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun createMyWorld() {
-        // Bedrock does not expose a documented deep link for the Create New World
-        // screen. Open Minecraft directly so the user can create a real local world.
-        openMinecraft()
-        Toast.makeText(
-            this,
-            "В Minecraft открой «Играть» → «Создать» → «Создать новый мир»",
-            Toast.LENGTH_LONG
-        ).show()
+        openMinecraftPlay()
+        Toast.makeText(this, "Открой «Создать» в Minecraft Bedrock", Toast.LENGTH_LONG).show()
     }
 
     private fun connectToFriend() {
-        openMinecraft()
-        Toast.makeText(this, "Открой «Играть» и выбери друга в Minecraft", Toast.LENGTH_LONG).show()
+        openMinecraftPlay()
+    }
+
+    private fun openMinecraftPlay() {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("minecraft://openServersTab"))
+        runCatching { startActivity(intent) }.onFailure { openMinecraft() }
     }
 
     private fun openMinecraft() {
         val intent = packageManager.getLaunchIntentForPackage("com.mojang.minecraftpe")
         if (intent != null) startActivity(intent)
-        else Toast.makeText(this, "Minecraft Bedrock не найден", Toast.LENGTH_LONG).show()
+        else {
+            val fallback = Intent(Intent.ACTION_VIEW, Uri.parse("minecraft://"))
+            runCatching { startActivity(fallback) }.onFailure {
+                Toast.makeText(this, "Minecraft Bedrock не найден. Установи официальное приложение Minecraft.", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     private fun showServerDialog() {
