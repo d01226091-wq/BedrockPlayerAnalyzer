@@ -262,7 +262,7 @@ class MainActivity : AppCompatActivity() {
         val checked = booleanArrayOf(true, true, true, true, true)
         AlertDialog.Builder(this)
             .setTitle("Настройки")
-            .setMultiChoiceItems(items, checked) { _, _, _ -> }
+            .setMultiChoiceItems(controls, checked) { _, _, _ -> }
             .setPositiveButton("Готово", null)
             .setNegativeButton("Отмена", null)
             .show()
