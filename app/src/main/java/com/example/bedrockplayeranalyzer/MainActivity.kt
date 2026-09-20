@@ -220,16 +220,21 @@ class MainActivity : AppCompatActivity() {
             addView(port, lp(8, 0))
         }
         AlertDialog.Builder(this)
-            .setTitle("Подключение к серверу")
+            .setTitle("ПОДКЛЮЧЕНИЕ К СЕРВЕРУ")
             .setView(box)
-            .setPositiveButton("ОТКРЫТЬ MINECRAFT") { _, _ ->
+            .setPositiveButton("ПОДКЛЮЧИТЬСЯ") { _, _ ->
                 val address = host.text.toString().trim()
                 val p = port.text.toString().trim().ifEmpty { "19132" }
                 if (address.isEmpty()) {
                     Toast.makeText(this, "Введите адрес сервера", Toast.LENGTH_SHORT).show()
                 } else {
-                    openMinecraft()
-                    Toast.makeText(this, "Сервер: $address:$p", Toast.LENGTH_LONG).show()
+                    val uri = Uri.parse("minecraft://connect?serverUrl=" + Uri.encode(address) + "&serverPort=" + Uri.encode(p))
+                    runCatching {
+                        startActivity(Intent(Intent.ACTION_VIEW, uri))
+                    }.onFailure {
+                        val addUri = Uri.parse("minecraft://?addExternalServer=" + Uri.encode("Bedrock Server") + "|" + Uri.encode(address + ":" + p))
+                        startActivity(Intent(Intent.ACTION_VIEW, addUri))
+                    }
                 }
             }
             .setNegativeButton("ОТМЕНА", null)
